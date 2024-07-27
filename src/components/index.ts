@@ -6,6 +6,7 @@ export * from './ui/title/Title'
 
 // Product
 export * from './product/size-selector/SizeSelector'
+export * from './product/quantity-selector/QuantitySelector'
 
 // Products
 export * from './products/product-grid/ProductGrid'
