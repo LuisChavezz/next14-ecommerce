@@ -4,6 +4,7 @@ export * from './ui/top-menu/TopMenu'
 export * from './ui/not-found/NotFound'
 export * from './ui/title/Title'
 export * from './ui/sidebar/Sidebar'
+export * from './ui/footer/Footer'
 
 // Product
 export * from './product/size-selector/SizeSelector'
