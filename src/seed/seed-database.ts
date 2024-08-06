@@ -1,9 +1,57 @@
 import { initialData } from "./seed"
+import prisma from '../lib/prisma';
 
 
 async function main(){
-  console.log('initialData', initialData)
+
+  // 1. Delete all data from the database
+  await Promise.all([
+    await prisma.productImage.deleteMany(), // delete all product images
+    await prisma.product.deleteMany(), // delete all products
+    await prisma.category.deleteMany(), // delete all categories
+  ]);
+
+  // 2. Insert initial categories data
+  const { categories, products } = initialData;
+  const categoriesDate = categories.map(( name ) => ({ name }));
+
+  await prisma.category.createMany({
+    data: categoriesDate,
+  });
+
+  const categoriesDB = await prisma.category.findMany();
+
+  const categoriesMap = categoriesDB.reduce((map, category) => {
+    map[category.name.toLocaleLowerCase()] = category.id;
+    return map;
+  }, {} as Record<string, string>);
+
+  // 3. Insert initial products data
+  products.forEach(async (product) => {
+    const { type, images, ...rest } = product; // extract type and images from product
+
+    const dbProduct = await prisma.product.create({
+      data: {
+        ...rest,
+        categoryId: categoriesMap[type.toLocaleLowerCase()],
+      },
+    });
+  
+    // Insert images for the product
+    const imagesData = images.map((image) => ({
+      url: image,
+      productId: dbProduct.id,
+    }));
+
+    await prisma.productImage.createMany({
+      data: imagesData,
+    });
+  });
+
+
+  console.log('Seed was executed successfully');
 }
+
 
 (() => {
   if ( process.env.NODE_ENV !== 'development' ) {
