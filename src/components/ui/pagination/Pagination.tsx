@@ -21,12 +21,10 @@ export const Pagination = ({ totalPages }: Props) => {
   const searchParams = useSearchParams();
   const currentPage = Math.floor(Number(searchParams.get('page'))) > 0 ? Math.floor(Number(searchParams.get('page'))) : 1;
 
-
-  console.log('currentPage', currentPage);
-
   // Generate the pagination numbers
   const allPages = generatePaginationNumbers( currentPage, totalPages );
 
+  // Create the page url
   const createPageUrl = ( pageNumber: number | string ) => {
     const params = new URLSearchParams( searchParams );
 
