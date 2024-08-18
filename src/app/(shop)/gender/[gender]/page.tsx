@@ -1,4 +1,4 @@
-// import { notFound } from "next/navigation";
+export const revalidate = 60;
 
 import { getPaginatedProductsWithImages } from "@/actions";
 import { Pagination, ProductGrid, Title } from "@/components";
