@@ -1,17 +1,21 @@
 'use server'
 
 import prisma from "@/lib/prisma";
+import { Gender } from "@prisma/client";
+import { notFound } from "next/navigation";
 
 
 interface PaginationOptions {
   page?: number;
   take?: number;
+  gender?: Gender;
 }
 
 
 export const getPaginatedProductsWithImages = async({ 
   page = 1, 
-  take = 12
+  take = 12,
+  gender
 }: PaginationOptions ) => {
 
   if ( isNaN( Number(page)) ) page = 1;
@@ -30,11 +34,18 @@ export const getPaginatedProductsWithImages = async({
             url: true
           }
         }
+      },
+      where: {
+        ...( gender ? { gender } : {} )
       }
     });
 
     // Get total of pages
-    const totalCount = await prisma.product.count();
+    const totalCount = await prisma.product.count({
+      where: {
+        ...( gender ? { gender } : {} )
+      }
+    });
     const totalPages = Math.ceil( totalCount / take );
 
     return {
@@ -47,6 +58,7 @@ export const getPaginatedProductsWithImages = async({
     }
 
   } catch (error) {
-    throw new Error('Error fetching products');
+    notFound();
+    // throw new Error('Error fetching products');
   }
 }
