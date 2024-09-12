@@ -8,6 +8,7 @@ interface State {
   cart: CartProduct[];
 
   // Actions
+  getTotalItems: () => number;
   addToCart: (product: CartProduct) => void;
 }
 
@@ -18,6 +19,11 @@ export const useCartStore = create<State>()(
       cart: [],
 
       // Methods
+      getTotalItems: () => {
+        const { cart } = get();
+        return cart.reduce((acc, item) => acc + item.quantity, 0);
+      },
+
       addToCart: (product: CartProduct) => {
         const { cart } = get();
 
