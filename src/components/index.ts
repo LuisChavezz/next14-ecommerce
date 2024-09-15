@@ -17,3 +17,6 @@ export * from './product/stock-label/StockLabel'
 // Products
 export * from './products/product-grid/ProductGrid'
 export * from './products/product-grid/ProductGridItem'
+
+// Cart
+export * from './cart/ui/ProductsInCart'
