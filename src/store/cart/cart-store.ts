@@ -9,6 +9,13 @@ interface State {
 
   // Actions
   getTotalItems: () => number;
+  getSummaryInformation: () => {
+    subTotal: number;
+    taxes: number;
+    total: number;
+    itemsInCart: number;
+  }
+
   addToCart: (product: CartProduct) => void;
   updateProductQuantity: (product: CartProduct, quantity: number) => void;
   removeProduct: (product: CartProduct) => void;
@@ -24,6 +31,20 @@ export const useCartStore = create<State>()(
       getTotalItems: () => {
         const { cart } = get();
         return cart.reduce((acc, item) => acc + item.quantity, 0);
+      },
+
+      getSummaryInformation: () => {
+        const { cart } = get();
+        const subTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity) , 0);
+        const taxes = subTotal * 0.15;
+        const itemsInCart = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+        return {
+          subTotal,
+          taxes,
+          total: subTotal + taxes,
+          itemsInCart,
+        };
       },
 
       addToCart: (product: CartProduct) => {
