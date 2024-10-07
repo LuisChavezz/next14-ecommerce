@@ -21,3 +21,6 @@ export * from './products/product-grid/ProductGridItem'
 // Cart
 export * from './cart/ui/ProductsInCart'
 export * from './cart/ui/OrderSummary'
+
+// Auth
+export * from './auth/LoginForm'
