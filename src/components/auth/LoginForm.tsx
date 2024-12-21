@@ -2,7 +2,10 @@
 
 import { authenticate } from "@/actions"
 import Link from "next/link"
-import { useFormState } from "react-dom"
+import { useFormState, useFormStatus } from "react-dom"
+import { IoInformationOutline } from "react-icons/io5"
+import credentials from 'next-auth/providers/credentials';
+import clsx from "clsx"
 
 
 export const LoginForm = () => {
@@ -26,12 +29,21 @@ export const LoginForm = () => {
         type="password"
         name="password" />
 
-      <button
-        type="submit"
-        className="btn-primary"
+
+      <div
+        className="flex h-8 items-end space-x-1"
+        aria-live="polite"
+        aria-atomic="true"
       >
-        Ingresar
-      </button>
+        {(state === "CredentailsSign") && (
+          <div className="flex flex-row mb-2">
+            <IoInformationOutline className="h-5 w-5 text-red-500" />
+            <p className="text-sm text-red-500">Invalid credentials</p>
+          </div>
+        )}
+      </div>
+
+      <LoginButton />
 
       {/* divisor l ine */}
       <div className="flex items-center my-5">
@@ -47,5 +59,23 @@ export const LoginForm = () => {
       </Link>
 
     </form>
+  )
+}
+
+
+function LoginButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      className={ clsx({
+        "btn-primary": !pending,
+        "btn-disabled": pending
+      })}
+      disabled={ pending }
+    >
+      Ingresar
+    </button>
   )
 }

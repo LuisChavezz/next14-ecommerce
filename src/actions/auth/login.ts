@@ -1,6 +1,7 @@
 'use server'
 
 import { signIn } from "@/auth.config"
+import { sleep } from "@/utils";
 
 
 export async function authenticate(
@@ -10,6 +11,8 @@ export async function authenticate(
 
   try {
     
+    // await sleep( 2 );
+
     await signIn( 'credentials', Object.fromEntries( formData ) );
     
   } catch (error) {
