@@ -1,5 +1,6 @@
 'use client'
 
+import { logout } from "@/actions"
 import { useUIStore } from "@/store"
 import clsx from "clsx"
 import Link from "next/link"
@@ -56,7 +57,8 @@ export const Sidebar = () => {
 
         {/* Links */}
         <Link 
-          href="/"
+          href="/profile"
+          onClick = { () => closeSideMenu() }
           className="flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all"        
         >
           <IoPersonOutline size={ 30 } />
@@ -79,13 +81,13 @@ export const Sidebar = () => {
           <span className="ml-3 text-xl">Login</span>
         </Link>
 
-        <Link 
-          href="/"
-          className="flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all"        
+        <button 
+          className="flex w-full items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all"  
+          onClick={ () => logout() }      
         >
           <IoLogOutOutline size={ 30 } />
           <span className="ml-3 text-xl">Logout</span>
-        </Link>
+        </button>
 
         {/* Line Seperator */}
         <div className="w-full h-px bg-gray-200 my-10" />
