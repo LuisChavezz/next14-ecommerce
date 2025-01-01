@@ -1,17 +1,26 @@
 'use client'
 
+import { useEffect } from "react"
 import { authenticate } from "@/actions"
 import Link from "next/link"
 import { useFormState, useFormStatus } from "react-dom"
 import { IoInformationOutline } from "react-icons/io5"
 import credentials from 'next-auth/providers/credentials';
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 
 
 export const LoginForm = () => {
 
+  const router = useRouter();
   const [state, dispatch] = useFormState( authenticate, undefined )
-  console.log( {state} );
+  
+  useEffect(() => {
+    if (state === "Success") {
+      router.replace( '/' )
+    }
+  }, [state])
+  
 
   return (
     <form action={ dispatch } className="flex flex-col">
@@ -35,7 +44,7 @@ export const LoginForm = () => {
         aria-live="polite"
         aria-atomic="true"
       >
-        {(state === "CredentailsSign") && (
+        {(state === "CredentialsSignIn") && (
           <div className="flex flex-row mb-2">
             <IoInformationOutline className="h-5 w-5 text-red-500" />
             <p className="text-sm text-red-500">Invalid credentials</p>
