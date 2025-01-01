@@ -24,3 +24,6 @@ export * from './cart/ui/OrderSummary'
 
 // Auth
 export * from './auth/LoginForm'
+
+// Providers
+export * from './providers/Provider'
