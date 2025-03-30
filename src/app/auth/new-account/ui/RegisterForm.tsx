@@ -1,6 +1,6 @@
 'use client'
 
-import { registerUser } from "@/actions"
+import { login, registerUser } from "@/actions"
 import clsx from "clsx"
 import Link from "next/link"
 import { useState } from "react"
@@ -13,10 +13,12 @@ type FormInputs = {
 }
 
 export const RegisterForm = () => {
-
+  
+  // Form state
   const [errorMessage, setErrorMessage] = useState('')
   const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>()
 
+  // Form submit handler
   const onSubmit: SubmitHandler<FormInputs> = async(data) => {
     setErrorMessage('')
     const { name, email, password } = data
@@ -29,8 +31,9 @@ export const RegisterForm = () => {
       return
     }
 
-    console.log({ resp })
-
+    // Login user and redirect after registration
+    await login( email.toLowerCase(), password )
+    window.location.replace('/')
   }
 
   return (
