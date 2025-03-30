@@ -3,6 +3,11 @@ import credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import prisma from './lib/prisma';
 import bcryptjs from 'bcryptjs';
+
+
+const authenticatedRoutes = [
+  '/checkout/address',
+]
  
 export const authConfig: NextAuthConfig = {
   pages: {
@@ -11,6 +16,23 @@ export const authConfig: NextAuthConfig = {
   },
 
   callbacks: {
+    authorized({ auth, request: { nextUrl }}) {
+      console.log({ auth });
+      
+      // const isLoggedIn = !!auth?.user;
+      // const isOnAuthenticatedRoute = authenticatedRoutes.some((route) => nextUrl.pathname.startsWith(route));
+      // if ( isOnAuthenticatedRoute ) {
+      //   if ( isLoggedIn ) {
+      //     return true;
+      //   }
+      //   return false;
+
+      // } else if ( isLoggedIn ) {
+      //   return Response.redirect(new URL('/', nextUrl));
+      // }
+      return true;
+    },
+
     async jwt({ token, user }) {
       if ( user ) {
         token.data = user;
