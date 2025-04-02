@@ -11,3 +11,6 @@ export * from './auth/register';
 
 // Country actions
 export * from './country/getCountries';
+
+// Address actions
+export * from './address/set-user-address';
