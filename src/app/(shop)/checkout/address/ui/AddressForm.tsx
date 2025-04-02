@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form"
 import type { Country } from "@/interfaces"
 import { useAddressStore } from "@/store"
 import { useEffect } from 'react';
+import { setUserAddress } from "@/actions"
+import { useSession } from "next-auth/react"
 
 
 type FormInputs = {
@@ -32,19 +34,33 @@ export const AddressForm = ({ countries }: Props) => {
     }
   })
 
+  // Session hook from next-auth
+  const { data: session } = useSession({
+    required: true, // redirect to login if not authenticated
+  })
+
   // Address store from zustand
   const setAddress = useAddressStore((state) => state.setAddress)
   const address = useAddressStore((state) => state.address)
-
+  
   useEffect(() => {
     if ( address.firstName ) {
       reset( address )
     }
-  },)
+    
+  }, [address, reset])
   
 
   const onSubmit = ( data: FormInputs ) => {
     setAddress( data )
+    const { rememberAddress, ...restAddress } = data
+
+    if ( rememberAddress ) {
+      setUserAddress( restAddress, session!.user.id )
+
+    } else {
+
+    }
   }
 
   return (
