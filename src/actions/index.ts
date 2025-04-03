@@ -15,3 +15,4 @@ export * from './country/getCountries';
 // Address actions
 export * from './address/set-user-address';
 export * from './address/delete-user-address';
+export * from './address/get-user-address';
