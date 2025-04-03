@@ -12,6 +12,7 @@ async function main(){
 
     await prisma.product.deleteMany(), // delete all products
     await prisma.category.deleteMany(), // delete all categories
+    await prisma.userAddress.deleteMany(), // delete all user addresses
     await prisma.user.deleteMany(), // delete all users
   ]);
 

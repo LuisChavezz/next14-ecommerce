@@ -20,7 +20,6 @@ export const getUserAddress = async (userId: string) => {
       ...restAddress,
       country: countryId,
       address2: address2 || '',
-      city: 'city',
     }
     
   } catch (error) {
