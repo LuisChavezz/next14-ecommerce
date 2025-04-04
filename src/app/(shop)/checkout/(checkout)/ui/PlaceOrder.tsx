@@ -1,5 +1,6 @@
 'use client'
 
+import { placeOrder } from "@/actions"
 import { useAddressStore, useCartStore } from "@/store"
 import { currencyFormat, sleep } from "@/utils"
 import clsx from "clsx"
@@ -26,9 +27,9 @@ export const PlaceOrder = () => {
 
   const onPlaceOrder = async() => {
     setIsPlacingOrder(true)
-    await sleep(2)
+    // await sleep(2)
 
-    // ? Product information to be sent to the server
+    // Product information to be sent to the server
     const productsToOrder = cart.map((product) => ({
       productId: product.id,
       quantity: product.quantity,
@@ -36,8 +37,8 @@ export const PlaceOrder = () => {
     }))
 
     // TODO: Server action to place order
-    console.log({ address, productsToOrder })
-
+    const resp = await placeOrder( productsToOrder, address )
+    console.log({ resp })
 
 
     setIsPlacingOrder(false)    
