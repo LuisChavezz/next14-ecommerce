@@ -1,21 +1,47 @@
 'use client'
 
 import { useAddressStore, useCartStore } from "@/store"
-import { currencyFormat } from "@/utils"
+import { currencyFormat, sleep } from "@/utils"
+import clsx from "clsx"
 import { useEffect, useState } from "react"
 
 
 export const PlaceOrder = () => {
 
   const [loaded, setLoaded] = useState(false)
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
 
   // Address store from Zustand
   const address = useAddressStore((state) => state.address)
+
+  // Cart total information from Zustand
   const { itemsInCart, subTotal, taxes, total } = useCartStore(state => state.getSummaryInformation())
+
+  // Cart store from Zustand
+  const cart = useCartStore(state => state.cart)
 
   useEffect(() => {
     setLoaded(true)
   }, [])
+
+  const onPlaceOrder = async() => {
+    setIsPlacingOrder(true)
+    await sleep(2)
+
+    // ? Product information to be sent to the server
+    const productsToOrder = cart.map((product) => ({
+      productId: product.id,
+      quantity: product.quantity,
+      size: product.size,
+    }))
+
+    // TODO: Server action to place order
+    console.log({ address, productsToOrder })
+
+
+
+    setIsPlacingOrder(false)    
+  }
 
   if (!loaded) {
     return <p>Loading...</p>
@@ -56,9 +82,19 @@ export const PlaceOrder = () => {
           {/* Disclaimer */}
           <span className="text-xs">By clicking on the Place Order button, you agree to our <a href="#" className="underline">Terms & Condition</a> and <a href="#" className="underline">Privacy Policy</a></span>
         </p>
+
+        {/* <p className="text-red-500">Error placing order</p> */}
+
         <button
           // href="/orders/123" 
-          className="flex btn-primary justify-center"
+          disabled={ isPlacingOrder }
+          onClick={ onPlaceOrder }
+          className={
+            clsx({
+              'btn-primary': !isPlacingOrder,
+              'btn-disabled': isPlacingOrder,
+            })
+          }
         >
           Place Order
         </button>
