@@ -7,13 +7,17 @@ async function main(){
 
   // 1. Delete all data from the database
   await Promise.all([
-    await prisma.productImage.deleteMany(), // delete all product images
-    await prisma.country.deleteMany(), // delete all countries
+    await prisma.orderAddress.deleteMany(), // delete all order addresses
+    await prisma.orderItem.deleteMany(), // delete all order items
+    await prisma.order.deleteMany(), // delete all orders
 
-    await prisma.product.deleteMany(), // delete all products
-    await prisma.category.deleteMany(), // delete all categories
     await prisma.userAddress.deleteMany(), // delete all user addresses
     await prisma.user.deleteMany(), // delete all users
+    await prisma.country.deleteMany(), // delete all countries
+
+    await prisma.productImage.deleteMany(), // delete all product images
+    await prisma.product.deleteMany(), // delete all products
+    await prisma.category.deleteMany(), // delete all categories
   ]);
 
   // 2. Insert initial categories data
