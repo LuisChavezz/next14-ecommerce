@@ -36,5 +36,26 @@ export const placeOrder = async( productIds: ProductToOrder[], address: Address 
   const itemsInOrder = productIds.reduce(( count, product ) => count + product.quantity, 0)
 
   // Calculate the subtotal, total and taxes
+  const { subTotal, tax, total } = productIds.reduce(( totals, item ) => {
 
+    // Get the product information
+    const productQuantity = item.quantity
+    const product = products.find( product => product.id === item.productId )
+
+    // Check if the product exists
+    if ( !product ) throw new Error(`${ item.productId } not found - 500`)
+
+    // Calculate
+    const subTotal = product.price * productQuantity
+    totals.subTotal += subTotal
+    totals.tax += subTotal * 0.15
+    totals.total += subTotal * 1.15
+
+    return totals
+
+  }, { subTotal: 0, tax: 0, total: 0 } )
+
+  
+
+  
 }
