@@ -55,7 +55,46 @@ export const placeOrder = async( productIds: ProductToOrder[], address: Address 
 
   }, { subTotal: 0, tax: 0, total: 0 } )
 
-  
+  // Create the transaction
+  const prismaTx = await prisma.$transaction(async ( tx ) => {
+
+    // 1. Update the stock of the products
+    
+
+
+    // 2. Create the order - Headers - Details
+    const order = await tx.order.create({
+      data: {
+        userId,
+        itemsInOrder,
+        subTotal,
+        tax,
+        total,
+
+        OrderItem: {
+          createMany: {
+            data: productIds.map( productI => ({
+              productId: productI.productId,
+              quantity: productI.quantity,
+              size: productI.size,
+              price: products.find( product => product.id === productI.productId )?.price || 0
+            }))
+          }
+        }
+      }
+    })
+
+    // 3. Create the order address
+
+
+
+    return {
+      order,
+      updatedProducts: [],
+      orderAddress: {}
+    }
+
+  })
 
   
 }
