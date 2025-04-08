@@ -11,12 +11,12 @@ interface ProductToOrder {
   size: Size;
 }
 
-export const placeOrder = async( productIds: ProductToOrder[], address: Address ) => {
+export const placeOrder = async (productIds: ProductToOrder[], address: Address) => {
 
   // Validate if user is authenticated
   const session = await auth()
   const userId = session?.user.id
-  if ( !userId ) {
+  if (!userId) {
     return {
       ok: false,
       message: 'User session not found'
@@ -27,23 +27,23 @@ export const placeOrder = async( productIds: ProductToOrder[], address: Address 
   const products = await prisma.product.findMany({
     where: {
       id: {
-        in: productIds.map( product => product.productId )
+        in: productIds.map(product => product.productId)
       }
     },
   })
 
   // Calculate the quantity of products
-  const itemsInOrder = productIds.reduce(( count, product ) => count + product.quantity, 0)
+  const itemsInOrder = productIds.reduce((count, product) => count + product.quantity, 0)
 
   // Calculate the subtotal, total and taxes
-  const { subTotal, tax, total } = productIds.reduce(( totals, item ) => {
+  const { subTotal, tax, total } = productIds.reduce((totals, item) => {
 
     // Get the product information
     const productQuantity = item.quantity
-    const product = products.find( product => product.id === item.productId )
+    const product = products.find(product => product.id === item.productId)
 
     // Check if the product exists
-    if ( !product ) throw new Error(`${ item.productId } not found - 500`)
+    if (!product) throw new Error(`${item.productId} not found - 500`)
 
     // Calculate
     const subTotal = product.price * productQuantity
@@ -53,56 +53,96 @@ export const placeOrder = async( productIds: ProductToOrder[], address: Address 
 
     return totals
 
-  }, { subTotal: 0, tax: 0, total: 0 } )
+  }, { subTotal: 0, tax: 0, total: 0 })
 
   // Create the transaction
-  const prismaTx = await prisma.$transaction(async ( tx ) => {
+  try {
+    const prismaTx = await prisma.$transaction(async (tx) => {
 
-    // 1. Update the stock of the products
-    
+      // 1. Update the stock of the products
+      const updatedProductsPromises = products.map(async (product) => {
 
+        // Accumulate the quantity of the product
+        const productQuantity = productIds.filter(
+          p => p.productId === product.id
+        ).reduce((acc, item) => item.quantity + acc, 0)
 
-    // 2. Create the order - Headers - Details
-    const order = await tx.order.create({
-      data: {
-        userId,
-        itemsInOrder,
-        subTotal,
-        tax,
-        total,
+        if (productQuantity === 0) {
+          throw new Error(`${product.id} dont have stock`)
+        }
 
-        OrderItem: {
-          createMany: {
-            data: productIds.map( productI => ({
-              productId: productI.productId,
-              quantity: productI.quantity,
-              size: productI.size,
-              price: products.find( product => product.id === productI.productId )?.price || 0
-            }))
+        return tx.product.update({
+          where: { id: product.id },
+          data: {
+            inStock: {
+              decrement: productQuantity
+            }
+          }
+        })
+      })
+
+      const updatedProducts = await Promise.all(updatedProductsPromises)
+
+      // Check negative stock values
+      updatedProducts.forEach(product => {
+        if (product.inStock < 0) {
+          throw new Error(`${product.title} dont have stock`)
+        }
+      })
+
+      // 2. Create the order - Headers - Details
+      const order = await tx.order.create({
+        data: {
+          userId,
+          itemsInOrder,
+          subTotal,
+          tax,
+          total,
+
+          OrderItem: {
+            createMany: {
+              data: productIds.map(productI => ({
+                productId: productI.productId,
+                quantity: productI.quantity,
+                size: productI.size,
+                price: products.find(product => product.id === productI.productId)?.price || 0
+              }))
+            }
           }
         }
+      })
+
+      // 3. Create the order address
+      const { country, ...restAddress } = address
+
+      const orderAddress = await tx.orderAddress.create({
+        data: {
+          orderId: order.id,
+          countryId: country,
+          ...restAddress
+        }
+      })
+
+      return {
+        order,
+        updatedProducts: updatedProducts,
+        orderAddress: orderAddress
       }
+
     })
-
-    // 3. Create the order address
-    const { country, ...restAddress } = address
-
-    const orderAddress = await tx.orderAddress.create({
-      data: {
-        orderId: order.id,
-        countryId: country,
-        ...restAddress
-      }
-    })
-
 
     return {
-      order,
-      updatedProducts: [],
-      orderAddress: {}
+      ok: true,
+      message: 'Order placed successfully',
+      order: prismaTx.order,
+      prismaTx
     }
 
-  })
 
-  
+  } catch (error: any) {
+    return {
+      ok: false,
+      message: error?.message
+    }
+  }
 }
