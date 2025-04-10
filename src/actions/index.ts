@@ -19,3 +19,4 @@ export * from './address/get-user-address';
 
 // Order actions
 export * from './order/place-order';
+export * from './order/get-order-by-id';
