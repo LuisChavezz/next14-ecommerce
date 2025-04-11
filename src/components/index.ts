@@ -26,4 +26,7 @@ export * from './cart/ui/OrderSummary'
 export * from './auth/LoginForm'
 
 // Providers
-export * from './providers/Provider'
+export * from './providers/Providers'
+
+// PayPal
+export * from './paypal/PayPalButton'
