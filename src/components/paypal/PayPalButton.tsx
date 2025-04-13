@@ -1,7 +1,7 @@
 'use client'
 
 import { PayPalButtons, PayPalButtonsComponentProps, usePayPalScriptReducer } from "@paypal/react-paypal-js"
-import { CreateOrderActions, CreateOrderData } from "@paypal/paypal-js"
+import { setTransactionId } from "@/actions"
 
 
 interface Props {
@@ -37,10 +37,16 @@ export const PayPalButton = ({ orderId, amount }: Props) => {
       ],
       intent: 'CAPTURE',
     })
+    
+    const { ok } = await setTransactionId( orderId, transactionId )
+    if ( !ok ) {
+      throw new Error('Error updating order')
+    }
 
-    console.log({ transactionId })
     return transactionId
   }
+
+
 
   return (
     <PayPalButtons 
