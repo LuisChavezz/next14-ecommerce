@@ -1,6 +1,7 @@
 'use server'
 
 import { PayPalOrderStarusResponse } from "@/interfaces"
+import prisma from "@/lib/prisma"
 
 
 export const paypalCheckPayment = async (paypalTransactionId: string) => {
@@ -39,9 +40,32 @@ export const paypalCheckPayment = async (paypalTransactionId: string) => {
     }
   }
 
-  // TODO: Update the order in the database
+  // Update the order in the database
+  try {
+    console.log({ status, purchase_units })
 
-  console.log({ status, purchase_units })
+    await prisma.order.update({
+      where: {
+        id: 'b470e31a-afde-4b93-ad01-e4342cfaa64b'
+      },
+      data: {
+        isPaid: true,
+        paidAt: new Date(),
+      }
+    })
+
+    // Revalidate a path
+
+    
+  } catch (error) {
+    console.error('Error updating order', error)
+    return {
+      ok: false,
+      message: '500 - Error updating order'
+    }
+    
+  }
+
 
 }
 
@@ -73,7 +97,10 @@ const getPaypalBearerToken = async (): Promise<string | null> => {
   };
 
   try {
-    const response = await fetch(oauth2Url, requestOptions).then(resp => resp.json())
+    const response = await fetch(oauth2Url, {
+      ...requestOptions,
+      cache: "no-store"
+    }).then(resp => resp.json())
     return response.access_token
 
   } catch (error) {
@@ -102,17 +129,14 @@ const verifyPayPalPayment = async (
   };
 
   try {
-    const response = await fetch(paypalOrderUrl, requestOptions).then(resp => resp.json())
+    const response = await fetch(paypalOrderUrl, {
+      ...requestOptions,
+      cache: "no-store"
+    }).then(resp => resp.json())
     return response
     
   } catch (error) {
     console.error("Error verifying PayPal payment:", error);
     return null
   }
-
-  fetch("https://api.sandbox.paypal.com/v2/checkout/orders/9GB86810DK532500T", requestOptions)
-    .then((response) => response.text())
-    .then((result) => console.log(result))
-    .catch((error) => console.error(error));
-
 }
