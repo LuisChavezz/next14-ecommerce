@@ -30,3 +30,6 @@ export * from './providers/Providers'
 
 // PayPal
 export * from './paypal/PayPalButton'
+
+// Orders
+export * from './orders/OrderStatus'

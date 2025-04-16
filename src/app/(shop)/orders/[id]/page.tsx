@@ -1,5 +1,5 @@
 import { getOrderById } from "@/actions";
-import { PayPalButton, Title } from "@/components";
+import { OrderStatus, PayPalButton, Title } from "@/components";
 import { currencyFormat } from "@/utils";
 import clsx from "clsx";
 import Image from "next/image";
@@ -36,19 +36,8 @@ export default async function CheckoutPage({ params }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
           {/* Cart */}
           <div className="flex flex-col mt-5">
-            <div className={
-              clsx(
-                "flex items-center rounded-lg py-2 px-3.5 text-xs font-bold text-white mb-5",
-                {
-                  'bg-red-500': !order?.isPaid,
-                  'bg-green-700': order?.isPaid
-                }
-              )
-            }>
-              <IoCardOutline size={30} />
-              {/* <span className="mx-2">Pending payment</span> */}
-              <span className="mx-2">{(order?.isPaid) ? 'Paid' : 'Not paid'}</span>
-            </div>
+            
+            <OrderStatus isPaid={order!.isPaid} />
 
             {/* Cart Items */}
             {
@@ -104,12 +93,19 @@ export default async function CheckoutPage({ params }: Props) {
               <span className="mt-5 text-2xl text-right">{ currencyFormat( order!.total ) }</span>
             </div>
 
-            <div className="mt-5 mb-2 w-full">
-              <PayPalButton
-                orderId={ order!.id }
-                amount={ order!.total }
-              />
-            </div>
+            {
+              (order!.isPaid) ? (
+                <OrderStatus isPaid={ true } />
+              ) : (
+                <div className="mt-5 mb-2 w-full">
+                  <PayPalButton
+                    orderId={ order!.id }
+                    amount={ order!.total }
+                  />
+                </div>
+              )
+            }
+
           </div>
         </div>
       </div>
