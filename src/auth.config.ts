@@ -5,8 +5,10 @@ import prisma from './lib/prisma';
 import bcryptjs from 'bcryptjs';
 
 
-const authenticatedRoutes = [
-  '/checkout/address',
+const PROTECTED_PATHS = [
+  { path: '/checkout', allowedRoles: ['user', 'admin'] },
+  { path: '/orders', allowedRoles: ['user', 'admin'] },
+  { path: '/admin', allowedRoles: ['admin'] },
 ]
  
 export const authConfig: NextAuthConfig = {
@@ -17,20 +19,12 @@ export const authConfig: NextAuthConfig = {
 
   callbacks: {
     authorized({ auth, request: { nextUrl }}) {
-      console.log({ auth });
       
-      // const isLoggedIn = !!auth?.user;
-      // const isOnAuthenticatedRoute = authenticatedRoutes.some((route) => nextUrl.pathname.startsWith(route));
-      // if ( isOnAuthenticatedRoute ) {
-      //   if ( isLoggedIn ) {
-      //     return true;
-      //   }
-      //   return false;
+      const role = auth?.user?.role ?? 'guest';
+      const protectedPath = PROTECTED_PATHS.find(({ path }) => nextUrl?.pathname.includes(path));
+      const canAccessPath = !protectedPath || protectedPath?.allowedRoles.includes(role);
+      return canAccessPath;   
 
-      // } else if ( isLoggedIn ) {
-      //   return Response.redirect(new URL('/', nextUrl));
-      // }
-      return true;
     },
 
     async jwt({ token, user }) {
