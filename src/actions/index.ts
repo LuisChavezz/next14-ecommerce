@@ -26,3 +26,6 @@ export * from './order/get-paginated-orders';
 // Payment actions
 export * from './payments/set-transaction-id';
 export * from './payments/paypal-check-payment';
+
+// User actions
+export * from './user/get-paginated-users';
