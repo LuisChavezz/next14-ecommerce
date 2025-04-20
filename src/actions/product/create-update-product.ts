@@ -1,6 +1,7 @@
 'use server'
 
-import { Gender } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { Gender, Product, Size } from '@prisma/client';
 import { z } from 'zod';
 
 
@@ -28,14 +29,54 @@ export const createOrUpdateProduct = async ( formData: FormData ) => {
   const data = Object.fromEntries( formData );
   const parsedProduct = productSchema.safeParse( data );
 
+  // Check if the data is valid
   if ( !parsedProduct.success ) {
     console.log( parsedProduct.error )
     return {
       ok: false,
       message: 'Error, please check the data',
     }
-
-  } else {
-    console.log( parsedProduct.data )
   }
+
+  const product = parsedProduct.data; // productSchema.parse(data)
+  product.slug = product.slug.toLowerCase().replace(/ /g, '_').trim() // replace spaces with underscores
+  const { id, ...restProduct } = product;
+
+  // Prisma transaction to create or update the product
+  const prismaTx = await prisma.$transaction(async (tx) => {
+
+    let product: Product;
+    const tagsArray = restProduct.tags.split(',').map((tag) => tag.trim()); // set the tags
+
+    if ( id ) {
+      // Update product
+      product = await tx.product.update({
+        where: { id },
+        data: {
+          ...restProduct,
+          sizes: {
+            set: restProduct.sizes as Size[], // set the sizes
+          },
+          tags: {
+            set: tagsArray,
+          }
+        },
+      });
+
+      console.log({updatedProduct: product});
+
+    } else {
+      // Create product
+      
+    }
+
+    // TODO: revalidate paths
+
+    return {
+      ok: true,
+      message: 'Product created/updated successfully',
+      // product,
+    }
+
+  })
 }
