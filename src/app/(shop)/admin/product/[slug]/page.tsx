@@ -20,7 +20,7 @@ export default async function ProductPage({ params }: Props) {
   ]);
 
   // Check if product is not found
-  if ( !product ) {
+  if ( !product && slug !== 'new' ) {
     redirect('/admin/products');
   }
   
@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <Title title={ title } />
       <ProductForm 
-        product={ product } 
+        product={ product ?? {} } 
         categories={ categories }
       />
     </>

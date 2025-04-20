@@ -28,7 +28,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       <Title title="Product Management" />
 
       <div className='flex justify-end mb-4'>
-        <Link href={'/admin/products/new'} className='btn-primary'>
+        <Link href={'/admin/product/new'} className='btn-primary'>
           New Product
         </Link>
       </div>

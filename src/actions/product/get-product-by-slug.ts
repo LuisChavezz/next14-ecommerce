@@ -9,12 +9,7 @@ export const getProductBySlug = async ( slug: string ) => {
   try {
     const product = await prisma.product.findUnique({
       include: {
-        ProductImage: {
-          select: {
-            id: true,
-            url: true
-          }
-        }
+        ProductImage: true
       },
       where: {
         slug
