@@ -8,6 +8,7 @@ interface Props {
   style?: React.StyleHTMLAttributes<HTMLImageElement>["style"]
   width: number
   height: number
+  priority?: boolean
 }
 
 export const ProductImage = ({
@@ -17,6 +18,7 @@ export const ProductImage = ({
   style,
   width,
   height,
+  priority = false,
 }: Props) => {
 
   // If the src is not a URL, we assume it's a local path
@@ -34,6 +36,7 @@ export const ProductImage = ({
       height={ height }
       className={ className }
       style={ style }
+      priority={ priority }
     />
   )
 }
