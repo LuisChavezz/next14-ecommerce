@@ -19,7 +19,7 @@ export const LoginForm = () => {
     if (state === "Success") {
       router.replace( '/' )
     }
-  }, [state])
+  }, [state, router])
   
 
   return (
