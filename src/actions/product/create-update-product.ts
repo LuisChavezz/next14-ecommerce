@@ -2,9 +2,11 @@
 
 import prisma from '@/lib/prisma';
 import { Gender, Product, Size } from '@prisma/client';
+import { v2 as cloudinary } from 'cloudinary';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
+cloudinary.config( process.env.CLOUDINARY_URL as string );
 
 const productSchema = z.object({
   id: z.string().uuid().optional().nullable(),
@@ -81,6 +83,12 @@ export const createOrUpdateProduct = async (formData: FormData) => {
         })
       }
 
+      // Handle images
+      if ( formData.getAll('images') ) {
+        const images = await uploadImages( formData.getAll('images') as File[] )
+        console.log(images)
+      }
+
       return { product }
     })
 
@@ -102,4 +110,29 @@ export const createOrUpdateProduct = async (formData: FormData) => {
       message: 'Error creating/updating product',
     }
   }
+}
+
+const uploadImages = async ( images: File[] ) => {
+  try {
+    const uploadPromises = images.map( async ( image ) => {
+      try {  
+          const buffer = await image.arrayBuffer();
+          const base64Image = Buffer.from( buffer ).toString( 'base64' );
+    
+          return cloudinary.uploader.upload( `data:image/png;base64,${ base64Image }` )
+            .then( resp => resp.secure_url )
+              
+      } catch (error) {
+        console.log('Error uploading images:', error);
+        return null
+      }
+    })
+
+    const uploadedImages = await Promise.all( uploadPromises )
+    return uploadedImages;
+    
+  } catch (error) {
+    console.log(error);
+    return null    
+  }  
 }
