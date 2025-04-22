@@ -1,9 +1,9 @@
 "use client";
 
 import { createOrUpdateProduct } from "@/actions";
+import { ProductImage as ProductImageComponent } from "@/components";
 import { Category, Product, ProductImage } from "@/interfaces";
 import clsx from "clsx";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -244,8 +244,8 @@ export const ProductForm = ({ product, categories }: Props) => {
             {
               product.ProductImage?.map( image => (
                 <div key={ image.id }>
-                  <Image
-                    src={ `/products/${ image.url }` }
+                  <ProductImageComponent
+                    src={ image.url }
                     alt={ product.title ?? '' }
                     width={ 300 }
                     height={ 300 }

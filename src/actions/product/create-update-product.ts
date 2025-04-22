@@ -86,7 +86,16 @@ export const createOrUpdateProduct = async (formData: FormData) => {
       // Handle images
       if ( formData.getAll('images') ) {
         const images = await uploadImages( formData.getAll('images') as File[] )
-        console.log(images)
+        if ( !images ) {// if there was an error uploading images
+          throw new Error('Error uploading images, rollingback')
+        }
+
+        await prisma.productImage.createMany({
+          data: images.map((image) => ({
+            url: image!,
+            productId: product.id,
+          }))
+        })
       }
 
       return { product }
@@ -94,8 +103,8 @@ export const createOrUpdateProduct = async (formData: FormData) => {
 
     // Revalidate paths
     revalidatePath('/admin/products');
-    revalidatePath(`/admin/products/${product.slug}`);
-    revalidatePath(`/products/${product.slug}`);
+    revalidatePath(`/admin/products/${ product.slug }`);
+    revalidatePath(`/products/${ product.slug }`);
 
     return {
       ok: true,
